@@ -1,0 +1,76 @@
+upstream site-proxy {
+    server localhost:8080;
+}
+
+server {
+    listen 80;
+    # listen 443 ssl;
+    server_name dev.xxx;
+    root  /home/www/default;
+    index index.html;
+    client_max_body_size 10M;
+    allow all;
+    deny all;
+
+    ## ssl
+    # ssl_certificate /etc/ssl/default/site.crt;
+    # ssl_certificate_key /etc/ssl/default/site.key;
+    # ssl_protocols SSLv3 TLSv1;
+    # ssl_ciphers ALL:!ADH:!EXPORT56:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv3:+EXP;
+    # ssl_prefer_server_ciphers on;
+    # if ($scheme != "https") {
+    #     rewrite ^(.*) https://$server_name$1 permanent;
+    # }
+
+    access_log  /home/www/log/default.access.log;
+    error_log   /home/www/log/default.error.log;
+
+    # http://blog.monoweb.info/article/2012021823.html
+    add_header X-Frame-Options DENY;
+    add_header X-Content-Type-Options nosniff;
+
+    # gizp settings
+    gzip on;
+    gzip_vary off;
+    gzip_disable "msie6";
+    gzip_types
+    text/plain
+    text/xml
+    text/css
+    text/javascript
+    text/x-component
+    text/x-js
+    text/richtext
+    text/xsd
+    text/xsl
+    image/svg+xml
+    image/x-icon
+    application/xml
+    application/xhtml+xml
+    application/rss+xml
+    application/javascript
+    application/x-javascript
+    ;
+
+    location ~ .*\.(html|htm|jpg|JPG|gif|GIF|png|PNG|swf|SWF|css|CSS|js|JS|inc|INC|ico|ICO|woff|eot|ttf)$ {
+        root   /home/www/default;
+        expires 30d;
+        break;
+    }
+
+    location / {
+        proxy_pass_header Server;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_set_header X-Forwarded-Server $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        # proxy_set_header X-Geo $geo;
+        proxy_read_timeout 60;
+        proxy_pass http://site-proxy;
+    }
+
+    location ~ /\.ht {
+        deny  all;
+    }
+}

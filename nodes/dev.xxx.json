@@ -1,0 +1,59 @@
+{
+  "user": "deployer",
+  "group": "sysadmin",
+  "home": "/home/deployer",
+  "authorization": {
+    "sudo": {
+      "groups": ["sysadmin"],
+      "users": ["vagrant", "deployer"],
+      "passwordless": "true"
+    }
+  },
+  "mysql": {
+    "server_root_password": "pass",
+    "server_repl_password": "pass",
+    "server_debian_password": "pass"
+  },
+  "nginx": {
+    "user": "deployer",
+    "group": "sysadmin",
+    "worker_processes": 4,
+    "default_site_enabled": false
+  },
+  "ruby_build": {
+    "upgrade": "sync"
+  },
+  "rbenv": {
+    "user_installs": [
+      {
+        "user": "deployer",
+        "rubies": ["2.1.0"],
+        "global": "2.1.0",
+        "gems": {
+          "2.1.0": [
+            {"name": "bundler"}
+          ]
+        }
+      }
+    ]
+  },
+
+  "run_list": [
+    "recipe[apt]",
+    "recipe[zsh]",
+    "recipe[git]",
+    "recipe[chef-solo-search]",
+    "recipe[users::sysadmins]",
+    "recipe[sudo]",
+    //"recipe[firewall]",
+    "recipe[server::firewall]",
+    "recipe[ruby_build]",
+    "recipe[server::ruby_build]",
+    "recipe[postfix]",
+    "recipe[nginx]",
+    "recipe[server::nginx]",
+    "recipe[mysql::server]",
+    "recipe[rbenv::user]",
+    "recipe[server::javascript]"
+  ]
+}

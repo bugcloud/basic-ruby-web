@@ -1,0 +1,10 @@
+{
+  "id": "deployer",
+  "ssh_keys": [
+  ],
+  "groups": [
+    "sysadmin"
+  ],
+ "shell": "\/bin\/bash",
+  "comment": "Deploy admin user"
+}
